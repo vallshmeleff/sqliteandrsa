@@ -1,6 +1,7 @@
-﻿package com.example.sqlbody;
+package com.example.sqlitersa;
 
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -8,29 +9,20 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.security.Key;
 import java.util.Objects;
-//=======================================
-//
-// We use the application to work with the SQLite database and add RSA encryption
-// An example of an application for reliable protection of personal data. 
-// In the example, only one field in each record will be encrypted
-//
-// SQLite repository - https://github.com/vallshmeleff/sqlite
-// RSA repository - https://github.com/vallshmeleff/androidrsa
-//
-// An example of using ready-made solutions in a new application
-//
-//=======================================
 
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener{
     Button buttonAdd;
@@ -48,6 +40,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     EditText evNote;
     public static Context Maincontext;
 
+    public static Key publicKey = null; //RSA
+    public static Key privateKey = null; //RSA
+    public static String str=" "; //File contents oflameron.txt
+    public static String str2=" "; //File contents oflameron.txt
+    public static String str3=" "; //File contents key.txt - public key
+    public static String str4=" "; //File contents pkey.txt - private key
+    public static byte[] privateKeyBytes = null; //RSA
+    public static byte[] publicKeyBytes = null; //RSA
+    public static byte[] encodedBytes = null; //RSA
+    public static byte[] decodedBytes = null; //RSA
+
+
     long rowID;
     int ie=0; // First record pointer
     int it=0; // Update ID
@@ -63,10 +67,38 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Maincontext = getApplicationContext(); //To work with context
+
+        // ============================================================
+        // Generate key pair for 1024-bit RSA encryption and decryption
+        // ============================================================
+        RSACode rsagente = new RSACode(); // Class instance RSACode
+        Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
+        KeyPMass = rsagente.RSAKeyGen(); //GENERATE Key Pair
+        publicKey = KeyPMass[0];
+        privateKey = KeyPMass[1];
+        //--------------------------------------------------------
+        // The most important part of encryption/decoding is saving
+        // and restoring the public and private keys. Otherwise, after
+        // restarting the application, you will not be able to decrypt
+        // the encoded text, because new keys will be generated.
+        //
+        // Save Keys -> to file
+        //--------------------------------------------------------
+        publicKeyBytes = publicKey.getEncoded();  //Записать в массив байт publicKey, закодированный в X.509
+        privateKeyBytes = privateKey.getEncoded();  //Записать в массив байт privateKey, закодированный в PKCS#8
+
+        str =  Base64.encodeToString(publicKeyBytes, Base64.DEFAULT); //Convert Byte Array (Public Key) to String
+        rsagente.Save("key.pub",str,  Maincontext);  //Write Public Key to file key.txt  from   str
+        str =  Base64.encodeToString(privateKeyBytes, Base64.DEFAULT); //Convert Byte Array (Private Key) to String
+        rsagente.Save("pkey.pri",str,  Maincontext);  //Write Private Key to file pkey.txt  from   str
+
+        // ============================================================
 
         buttonAdd = (Button) findViewById(R.id.btnAdd);
         buttonAdd.setOnClickListener((View.OnClickListener) this);
