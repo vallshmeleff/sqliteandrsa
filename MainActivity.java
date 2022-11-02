@@ -1,4 +1,4 @@
-package com.example.sqlitersa;
+﻿package com.example.sqlitersa;
 
 
 import androidx.annotation.RequiresApi;
@@ -21,9 +21,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.File;
 import java.security.Key;
 import java.util.Objects;
-
+//============================================================
+//
+// SQLite database with fields: user, email, phone, notes. Notes field is RSA encrypted on write.
+// Source:
+// https://github.com/vallshmeleff/androidrsa - RSA encryptin repository
+// https://github.com/vallshmeleff/sqlite - SQLite repository
+//
+// In Progress ...
+//
+//============================================================
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener{
     Button buttonAdd;
     Button buttonRead;
@@ -50,7 +60,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public static byte[] publicKeyBytes = null; //RSA
     public static byte[] encodedBytes = null; //RSA
     public static byte[] decodedBytes = null; //RSA
-
+    public File file = new File("key.pub"); // File for keys save
+    public String note = ""; // onClick - evNote.getText().toString(); // Notes
 
     long rowID;
     int ie=0; // First record pointer
@@ -74,30 +85,33 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         setContentView(R.layout.activity_main);
         Maincontext = getApplicationContext(); //To work with context
 
-        // ============================================================
-        // Generate key pair for 1024-bit RSA encryption and decryption
-        // ============================================================
-        RSACode rsagente = new RSACode(); // Class instance RSACode
-        Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
-        KeyPMass = rsagente.RSAKeyGen(); //GENERATE Key Pair
-        publicKey = KeyPMass[0];
-        privateKey = KeyPMass[1];
-        //--------------------------------------------------------
-        // The most important part of encryption/decoding is saving
-        // and restoring the public and private keys. Otherwise, after
-        // restarting the application, you will not be able to decrypt
-        // the encoded text, because new keys will be generated.
-        //
-        // Save Keys -> to file
-        //--------------------------------------------------------
-        publicKeyBytes = publicKey.getEncoded();  //Записать в массив байт publicKey, закодированный в X.509
-        privateKeyBytes = privateKey.getEncoded();  //Записать в массив байт privateKey, закодированный в PKCS#8
+        if(file.exists()) { // If key.pub already exist - do not generate new keys
 
-        str =  Base64.encodeToString(publicKeyBytes, Base64.DEFAULT); //Convert Byte Array (Public Key) to String
-        rsagente.Save("key.pub",str,  Maincontext);  //Write Public Key to file key.txt  from   str
-        str =  Base64.encodeToString(privateKeyBytes, Base64.DEFAULT); //Convert Byte Array (Private Key) to String
-        rsagente.Save("pkey.pri",str,  Maincontext);  //Write Private Key to file pkey.txt  from   str
+        } else { // If key.pub NO exist - generate new keys
+            // ============================================================
+            // Generate key pair for 1024-bit RSA encryption and decryption
+            // ============================================================
+            RSACode rsagente = new RSACode(); // Class instance RSACode
+            Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
+            KeyPMass = rsagente.RSAKeyGen(); //GENERATE Key Pair
+            publicKey = KeyPMass[0];
+            privateKey = KeyPMass[1];
+            //--------------------------------------------------------
+            // The most important part of encryption/decoding is saving
+            // and restoring the public and private keys. Otherwise, after
+            // restarting the application, you will not be able to decrypt
+            // the encoded text, because new keys will be generated.
+            //
+            // Save Keys -> to file
+            //--------------------------------------------------------
+            publicKeyBytes = publicKey.getEncoded();  //Записать в массив байт publicKey, закодированный в X.509
+            privateKeyBytes = privateKey.getEncoded();  //Записать в массив байт privateKey, закодированный в PKCS#8
 
+            str = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT); //Convert Byte Array (Public Key) to String
+            rsagente.Save("key.pub", str, Maincontext);  //Write Public Key to file key.txt  from   str
+            str = Base64.encodeToString(privateKeyBytes, Base64.DEFAULT); //Convert Byte Array (Private Key) to String
+            rsagente.Save("pkey.pri", str, Maincontext);  //Write Private Key to file pkey.txt  from   str
+        } // If key.pub already exist - do not generate new keys
         // ============================================================
 
         buttonAdd = (Button) findViewById(R.id.btnAdd);
@@ -152,7 +166,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         String name = evName.getText().toString();
         String email = evEmail.getText().toString();
         String phone = evPhone.getText().toString();
-        String note = evNote.getText().toString();
+        note = evNote.getText().toString(); // Notes
 
         SQLiteDatabase database = dbHelper.getWritableDatabase(); // Connecting to the Database
         ContentValues contentValues = new ContentValues(); // Create an object for the data
@@ -162,9 +176,21 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             case R.id.btnAdd:
                 contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
-                contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_MAIL to the table
-                contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
-                Log.d("SQLite","== == == == == == ADD Button ");
+                contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_PHONE to the table
+                    // ============================================================
+                    // Encode the original text with RSA private key
+                    // ============================================================
+                    // RSACode rsagente = new RSACode(); // Class instance RSACode
+                    //encodedBytes = rsagente.RSATextEncode(publicKey, privateKey, note); //Encode text (note) via RSACode.java class
+                    //note = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+                    // ============================================================
+
+                NOTEncrypt(); // NOTE encryption method. Return note variable
+
+                // Обычный вариант contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
+                contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new encrypted row KEY_NOTE to the table
+
+                Log.d("SQLite","== == == == == == ADD Button " + note);
 
                 rowID = database.insert(DBHelper.TABLE_CONTACTS, null, contentValues); // Write to the database and get its ID
                 Log.d("SQLite","== == Row inserted, ID = " + rowID);
@@ -174,6 +200,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
                 contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_MAIL to the table
+                NOTEncrypt(); // NOTE encryption method. Return note variable
                 contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
                 Log.d("SQLite","== == == == == == UPDATE Button ");
                 it = ie+1;
@@ -195,7 +222,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 int phoneIndex = cursor.getColumnIndex(DBHelper.KEY_PHONE);
                 int noteIndex = cursor.getColumnIndex(DBHelper.KEY_NOTE);
 
-                ie =0;
+                ie =1;
                 cursor.moveToPosition(ie); // Go to first record Record 0
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursor.getInt(idIndex) +
                         ", Name = " + cursor.getString(nameIndex) +
@@ -311,6 +338,22 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         }
     }
+
+    //==========================================================
+    // RSA text encryption
+    //==========================================================
+    public String NOTEncrypt() {
+        // ============================================================
+        // Encode NOTES text with RSA private key
+        // ============================================================
+        RSACode rsagente = new RSACode(); // Class instance RSACode
+        encodedBytes = rsagente.RSATextEncode(publicKey, privateKey, note); //Encode text (note) via RSACode.java class
+        note = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+        return note; //Return Text (Library Information)
+    }
+    //==========================================================
+
+
 
 
 
