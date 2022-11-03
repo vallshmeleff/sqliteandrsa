@@ -1,4 +1,4 @@
-﻿package com.example.sqlitersa;
+package com.example.sqlitersa;
 
 
 import androidx.annotation.RequiresApi;
@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +32,9 @@ import java.util.Objects;
 // https://github.com/vallshmeleff/androidrsa - RSA encryptin repository
 // https://github.com/vallshmeleff/sqlite - SQLite repository
 //
-// In Progress ...
+// RSA NOTE field enkrition
+//
+// Develop in progress ...
 //
 //============================================================
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener{
@@ -61,7 +64,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public static byte[] encodedBytes = null; //RSA
     public static byte[] decodedBytes = null; //RSA
     public File file = new File("key.pub"); // File for keys save
+
     public String note = ""; // onClick - evNote.getText().toString(); // Notes
+    public Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
+    public Key[] KeyMass = new Key[2]; //An array of two keys to return values from a method
 
     long rowID;
     int ie=0; // First record pointer
@@ -85,17 +91,42 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         setContentView(R.layout.activity_main);
         Maincontext = getApplicationContext(); //To work with context
 
-        if(file.exists()) { // If key.pub already exist - do not generate new keys
+        // File key.pab already exist ?
+        String[] files = fileList();
+        for (String file : files) {
+            if (file.equals("key.pub")) {
+                //file exits
+                //// Log.d("== Restored Keys ==","====== Keys Pub ======= ");
+            }
+        }
+
+
+
+
+
+        if(new File(getApplicationContext().getFilesDir().toString() + "/key.pub").exists()) { // If key.pub already exist - do not generate new keys
+                            // Read keys from file
+            RSACode rsagente = new RSACode(); // Class instance RSACode
+            str3 = rsagente.Load("key.pub", str3,  Maincontext); //Here we read and decode Public Key (RSACode class)
+            str4 = rsagente.Load("pkey.pri", str4,  Maincontext); //Here we read and decode Private Key (RSACode class)
+            KeyMass = rsagente.RSAKeyReGenerate(str3, str4); // We pass to the method str3 and str4 - String from the file. Get the recovered keys as an array
+            publicKey = KeyMass[0];
+            privateKey = KeyMass[1];
+
+            Log.d("== Restored Keys ==","====== ****** Keys ======= " +  publicKey);
+            Log.d("== Restored Keys ==","====== PUBLIC Key ======= " + getApplicationContext().getFilesDir().toString() + "/key.pub");
+
 
         } else { // If key.pub NO exist - generate new keys
             // ============================================================
             // Generate key pair for 1024-bit RSA encryption and decryption
             // ============================================================
             RSACode rsagente = new RSACode(); // Class instance RSACode
-            Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
+            // Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
             KeyPMass = rsagente.RSAKeyGen(); //GENERATE Key Pair
             publicKey = KeyPMass[0];
             privateKey = KeyPMass[1];
+            Log.d("== Generate Keys ==","====== Keys ======= " + getApplicationContext().getFilesDir().toString() + " " + publicKey.toString());
             //--------------------------------------------------------
             // The most important part of encryption/decoding is saving
             // and restoring the public and private keys. Otherwise, after
@@ -112,6 +143,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             str = Base64.encodeToString(privateKeyBytes, Base64.DEFAULT); //Convert Byte Array (Private Key) to String
             rsagente.Save("pkey.pri", str, Maincontext);  //Write Private Key to file pkey.txt  from   str
         } // If key.pub already exist - do not generate new keys
+
         // ============================================================
 
         buttonAdd = (Button) findViewById(R.id.btnAdd);
@@ -223,7 +255,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 int noteIndex = cursor.getColumnIndex(DBHelper.KEY_NOTE);
 
                 ie =1;
-                cursor.moveToPosition(ie); // Go to first record Record 0
+                cursor.moveToFirst(); // Go to first record - Position 0
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursor.getInt(idIndex) +
                         ", Name = " + cursor.getString(nameIndex) +
                         ", E-mail = " + cursor.getString(emailIndex) +
@@ -232,7 +264,11 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evName.setText(cursor.getString(nameIndex));
                 evEmail.setText(cursor.getString(emailIndex));
                 evPhone.setText(cursor.getString(phoneIndex));
-                evNote.setText(cursor.getString(noteIndex));
+                str2 = cursor.getString(noteIndex); // Read NOTES field
+                NOTEDecrypt(); // NOTE Decryption method. Return note variable
+                evNote.setText(note);
+
+                //////// evNote.setText(cursor.getString(noteIndex));
 
                 cursor.close();
                 break;
@@ -266,7 +302,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evName.setText(cursorN.getString(nameIndex));
                 evEmail.setText(cursorN.getString(emailIndex));
                 evPhone.setText(cursorN.getString(phoneIndex));
-                evNote.setText(cursorN.getString(noteIndex));
+                NOTEDecrypt(); // NOTE Decryption method. Return note variable
+                evNote.setText(note);
+                // evNote.setText(cursorN.getString(noteIndex));
 
                 cursorN.close();
                 break;
@@ -296,7 +334,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evName.setText(cursorP.getString(nameIndex));
                 evEmail.setText(cursorP.getString(emailIndex));
                 evPhone.setText(cursorP.getString(phoneIndex));
-                evNote.setText(cursorP.getString(noteIndex));
+                NOTEDecrypt(); // NOTE Decryption method. Return note variable
+                evNote.setText(note);
+                //evNote.setText(cursorP.getString(noteIndex));
 
                 cursorP.close();
                 break;
@@ -349,8 +389,24 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         RSACode rsagente = new RSACode(); // Class instance RSACode
         encodedBytes = rsagente.RSATextEncode(publicKey, privateKey, note); //Encode text (note) via RSACode.java class
         note = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
+        Log.e("== Exception ==", "== == NOTE == == " + note);
         return note; //Return Text (Library Information)
     }
+    //==========================================================
+
+    //==========================================================
+    // RSA text Decryption
+    //==========================================================
+    public String NOTEDecrypt() {
+        // ============================================================
+        // Decode NOTES text with RSA private key
+        // ============================================================
+        RSACode rsagente = new RSACode(); // Class instance RSACode
+        encodedBytes = Base64.decode(str2, Base64.DEFAULT); //Convert String to Byte Array
+        decodedBytes = rsagente.RSATextDecode(KeyMass[0], KeyMass[1], encodedBytes); //Text decoding (publicKey = KeyMass[0], privateKey = KeyMass[1])
+        note = new String(decodedBytes);
+        return note; //Return Text (Decode NOTES)
+    } // Valery Shmelev https://www.linkedin.com/in/valery-shmelev-479206227/  Creative programming
     //==========================================================
 
 
