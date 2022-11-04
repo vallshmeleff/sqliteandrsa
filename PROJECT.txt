@@ -1,0 +1,9 @@
+
+Android JAVA SQLite and RSA encryption
+
+Let's write an Android JAVA application that works with a SQLite database and uses strong RSA encryption of record fields.
+Asymmetric RSA encryption is highly secure. Especially with keys of 2048 bits and more.
+We will solve the technical problem of RSA encryption of large texts, indexing and data retrieval during encryption.
+We will use database parameters that can be easily adapted to different types of business -
+logistics, trade, manufacturing, warehouse, or even for the application of a financial notebook.
+This Open Source project can be used as a template for a real Android JAVA application project.
