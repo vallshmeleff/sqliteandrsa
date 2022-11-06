@@ -14,5 +14,5 @@ overcoming restrictions on the length of records.
 RSA encryption requires a lot of CPU resources to process. This reduces the speed of working with the SQLite database.
 However, RSA encryption provides the strongest data protection.
 
-New employees are invited to work on the Open Source GNU GPL project.
+New employees are invited to work on the Open Source GNU GPL project. Programmers will guess where to write
 FEEDBACK  https://github.com/vallshmeleff/feedback 
