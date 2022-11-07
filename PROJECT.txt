@@ -16,3 +16,6 @@ However, RSA encryption provides the strongest data protection.
 
 New employees are invited to work on the Open Source GNU GPL project. Programmers will guess where to write
 FEEDBACK  https://github.com/vallshmeleff/feedback 
+
+November 2022
+Created a method for dividing large text before RSA encryption
