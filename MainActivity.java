@@ -1,4 +1,4 @@
-package com.example.sqlitersa;
+﻿package com.example.sqlitersa;
 
 
 import androidx.annotation.RequiresApi;
@@ -32,7 +32,7 @@ import java.util.Objects;
 // https://github.com/vallshmeleff/androidrsa - RSA encryptin repository
 // https://github.com/vallshmeleff/sqlite - SQLite repository
 //
-// RSA NOTE field enkrition
+// RSA NOTE field encrytion
 //
 // Develop in progress ...
 //
@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public String note = ""; // onClick - evNote.getText().toString(); // Notes
     public Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
     public Key[] KeyMass = new Key[2]; //An array of two keys to return values from a method
+    // Text to Code
+    public static String gtestText = "WiKi: Slovak Republic (Slovenská republika), is a landlocked country in Central Europe. It is bordered by Poland to the north, Ukraine to the east, Hungary to the south, Austria to the southwest, and the Czech Republic to the northwest. Slovakia's mostly mountainous territory spans about 49,000 square kilometres (19,000 sq mi), with a population of over 5.4 million. The capital and largest city is Bratislava, while the second largest city is Košice.";
 
     long rowID;
     int ie=0; // First record pointer
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     DBHelper dbHelper;
 
     private static final int STORAGE_PERMISSION_CODE = 101;
-    // Storage Permissions - Для API 23+ необходимо запросить разрешения на чтение / запись, даже если они уже есть в вашем манифесте
+
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -99,8 +101,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 //// Log.d("== Restored Keys ==","====== Keys Pub ======= ");
             }
         }
-
-
 
 
 
@@ -135,8 +135,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             //
             // Save Keys -> to file
             //--------------------------------------------------------
-            publicKeyBytes = publicKey.getEncoded();  //Записать в массив байт publicKey, закодированный в X.509
-            privateKeyBytes = privateKey.getEncoded();  //Записать в массив байт privateKey, закодированный в PKCS#8
+            publicKeyBytes = publicKey.getEncoded(); 
+            privateKeyBytes = privateKey.getEncoded(); 
 
             str = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT); //Convert Byte Array (Public Key) to String
             rsagente.Save("key.pub", str, Maincontext);  //Write Public Key to file key.txt  from   str
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         // Storage PERMISSIONS
         Maincontext = getApplicationContext(); //To work with context
-        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE); // Запросить разрешения
+        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
         if (android.os.Build.VERSION.SDK_INT >= 23 && (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(
@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 cursorN.moveToPosition(ie); // Go to post
 
                 Log.d("SQLite","====== Record =======" + " ie: " + String.valueOf(ie));
-                cursorN.moveToPosition(ie); // Перейти к записи
+                cursorN.moveToPosition(ie); 
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorN.getInt(idIndex) +
                         ", Name = " + cursorN.getString(nameIndex) +
                         ", E-mail = " + cursorN.getString(emailIndex) +
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 cursorP.moveToPosition(ie); // Go to post
 
                 Log.d("SQLite","====== Record 2 =======" + " ie: " + String.valueOf(ie));
-                cursorP.moveToPosition(ie); // Перейти к записи
+                cursorP.moveToPosition(ie); 
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorP.getInt(idIndex) +
                         ", Name = " + cursorP.getString(nameIndex) +
                         ", E-mail = " + cursorP.getString(emailIndex) +
