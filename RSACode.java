@@ -1,4 +1,4 @@
-﻿package com.example.sqlitersa;
+package com.example.sqlitersa;
 import java.security.SecureRandom;
 import android.app.Application;
 import android.content.ClipData;
@@ -57,7 +57,7 @@ public class RSACode  extends Application {
 
     int dnaCode;
 
-    public boolean equals(RSACode man) { 
+    public boolean equals(RSACode man) { // https://javarush.ru/groups/posts/equals-java-sravnenie-strok
         return this.dnaCode ==  man.dnaCode;
     }
 
@@ -324,11 +324,12 @@ public class RSACode  extends Application {
     public String ObfuscationD(String SourceText, String e, String d) {
         String lstr =""; // Obfuscated text
         String newlstr =""; // Obfuscated text
-        String math1 = "5"; 
-        String math2 = "7"; 
+        String math1 = "5"; // We will replace this
+        String math2 = "7"; // This will insert
         int h = 0;
         ////char[] buf = new char[1];
-        String l = "*"; 
+        String l = "*"; //Temporary (intermediate) replacement
+
         if(Integer.parseInt(math1) < 10)
         {
             if(Integer.parseInt(math2) < 10)
@@ -338,21 +339,23 @@ public class RSACode  extends Application {
                     math1=SourceText.substring(h,h+1); //Write 6 characters i through i+1 to buf array starting from position 0
                     //// chr = e;
                     //// Log.d(LOG_TAG, "== ==| OBFUSCATION IF |== == " + math1 + " " + math2);
-                    if (math1.equals(e)) {  //Если найдена цифра 5
+                    if (math1.equals(e)) {  //If number 5 is found
                         Log.d(LOG_TAG, "== ==| OBFUSCATION IF 2 |== == " + d);
-                        lstr = lstr + l; // Заменяем на *
+                        lstr = lstr + l; // Replace with *
                     } else {
                         lstr = lstr + math1;
                         //// Log.d(LOG_TAG, "== ==| NO |== == ");
                     }
                 }
 
+                // 1. Replaced the desired number 5 with * Now you need to replace 7 with 5
+                //    1366345*956*0980*9596*4645
 
                 for(h = 0; h < lstr.length(); h++) {
                     math1=lstr.substring(h,h+1); //Write 6 characters i through i+1 to buf array starting from position 0
                     //// chr = e;
                     //// Log.d(LOG_TAG, "== ==| OBFUSCATION IF |== == " + math1 + " " + math2);
-                    if (math1.equals(d)) {  
+                    if (math1.equals(d)) {  //If the number 7 is found, replace it with 5
                         Log.d(LOG_TAG, "== ==| OBFUSCATION IF 3 |== == " + d);
                         newlstr = newlstr + e;
                     } else {
@@ -362,14 +365,15 @@ public class RSACode  extends Application {
                 }
                 Log.d(LOG_TAG, "== ==| OBFUSCATION 2 |== == " + newlstr);
 
-
+                // 2. Replaced the desired number 7 with 5 Now you need to replace * with 7
+                //    136634*59*65098059*965464*
 
                 lstr = "";
                 for(h = 0; h < newlstr.length(); h++) {
                     math1=newlstr.substring(h,h+1); //Write 6 characters i through i+1 to buf array starting from position 0
                     //// chr = e;
                     //// Log.d(LOG_TAG, "== ==| OBFUSCATION IF |== == " + math1 + " " + math2);
-                    if (math1.equals(l)) {  //
+                    if (math1.equals(l)) {  //If found * replace with 7
                         Log.d(LOG_TAG, "== ==| OBFUSCATION IF 4 |== == " + d);
                         lstr = lstr + d;
                     } else {
@@ -425,7 +429,7 @@ public class RSACode  extends Application {
                     if (e == 0) {
                         masString [e] = Text100; // Write to block array
                     } else {
-                        
+                        //////////masString[e] = "<oflameron>" + Text100; // Write to block array
                         masString[e] = Text100; // Write to block array
                     }
                     Log.d("== Block==", "== == Large Block == == ["+ e +"] " + masString [e]);
@@ -434,7 +438,7 @@ public class RSACode  extends Application {
                 }
                 if (i == 0) {
                     Text100 =eText.substring(y, eL);
-                    
+                    ////////////masString [e] = "<oflameron>" + Text100; // Write to block array
                     masString [e] = Text100; // Write to block array
                     Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
                 }
@@ -442,7 +446,7 @@ public class RSACode  extends Application {
                 //i = 0;
                 if (i == 0) {
                     Text100 =eText.substring(y, eL);
-                   
+                    ///////////masString [e] = "<oflameron>" + Text100; // Write to block array
                     masString [e] = Text100; // Write to block array
                     Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
                 }
