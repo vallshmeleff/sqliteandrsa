@@ -1,4 +1,4 @@
-﻿package com.example.sqlitersa;
+package com.example.sqlitersa;
 
 
 import androidx.annotation.RequiresApi;
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     DBHelper dbHelper;
 
     private static final int STORAGE_PERMISSION_CODE = 101;
-
+    // Storage Permissions - Для API 23+ необходимо запросить разрешения на чтение / запись, даже если они уже есть в вашем манифесте
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -101,6 +101,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 //// Log.d("== Restored Keys ==","====== Keys Pub ======= ");
             }
         }
+
+
 
 
 
@@ -135,8 +137,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             //
             // Save Keys -> to file
             //--------------------------------------------------------
-            publicKeyBytes = publicKey.getEncoded(); 
-            privateKeyBytes = privateKey.getEncoded(); 
+            publicKeyBytes = publicKey.getEncoded();  //Записать в массив байт publicKey, закодированный в X.509
+            privateKeyBytes = privateKey.getEncoded();  //Записать в массив байт privateKey, закодированный в PKCS#8
 
             str = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT); //Convert Byte Array (Public Key) to String
             rsagente.Save("key.pub", str, Maincontext);  //Write Public Key to file key.txt  from   str
@@ -182,7 +184,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         // Storage PERMISSIONS
         Maincontext = getApplicationContext(); //To work with context
-        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
+        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE); // Запросить разрешения
         if (android.os.Build.VERSION.SDK_INT >= 23 && (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                 PackageManager.PERMISSION_GRANTED)) {
             ActivityCompat.requestPermissions(
@@ -293,7 +295,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 cursorN.moveToPosition(ie); // Go to post
 
                 Log.d("SQLite","====== Record =======" + " ie: " + String.valueOf(ie));
-                cursorN.moveToPosition(ie); 
+                cursorN.moveToPosition(ie); // Перейти к записи
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorN.getInt(idIndex) +
                         ", Name = " + cursorN.getString(nameIndex) +
                         ", E-mail = " + cursorN.getString(emailIndex) +
@@ -325,7 +327,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 cursorP.moveToPosition(ie); // Go to post
 
                 Log.d("SQLite","====== Record 2 =======" + " ie: " + String.valueOf(ie));
-                cursorP.moveToPosition(ie); 
+                cursorP.moveToPosition(ie); // Перейти к записи
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorP.getInt(idIndex) +
                         ", Name = " + cursorP.getString(nameIndex) +
                         ", E-mail = " + cursorP.getString(emailIndex) +
