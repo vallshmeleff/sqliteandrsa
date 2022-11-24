@@ -13,3 +13,4 @@ Very strong RSA encryption is used. You can choose more reliable encryption key 
 16.11.2022 Methods for encrypting large texts have been tested on a prototype. Now I'm adding to this project.
 18.11.2022 Add GUIDE.pdf - pdf guide
 23.11.2022 - Debugging
+24.11.2022 - GUI Updated
