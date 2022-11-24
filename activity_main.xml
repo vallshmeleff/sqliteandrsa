@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/etName"
+        android:textSize="18sp"
+        android:hint="Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </EditText>
+        <!-- Slovak Republic JAVA Application -->
+    <EditText
+        android:id="@+id/etEmail"
+        android:textSize="18sp"
+        android:hint="Email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </EditText>
+    <EditText
+        android:id="@+id/etPhone"
+        android:textSize="18sp"
+        android:hint="Phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </EditText>
+    <!-- Total Lines in EditText = 6 -->
+    <EditText
+        android:id="@+id/etNote"
+        android:lines="6"
+        android:minLines="5"
+        android:textSize="18sp"
+        android:hint="Note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </EditText>
+        <!-- Record Counter -->
+    <TextView
+        android:id="@+id/Rowcount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:text="Counter"
+        android:rotation="0" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!-- Add New Record -->
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create REC">
+        </Button>
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear DB">
+        </Button>
+        <!-- Save Edit Record -->
+        <Button
+            android:id="@+id/btnUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save REC">
+        </Button>
+    </LinearLayout>
+    <!-- Set Record Position 0 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnRead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Record 0">
+        </Button>
+    </LinearLayout>
+    <!-- Scroll Records -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnPrev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PREV">
+        </Button>
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NEXT">
+        </Button>
+    </LinearLayout>
+    <!-- Export and Import DataBase files to Download folder -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DB Export">
+        </Button>
+        <Button
+            android:id="@+id/btnImport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DB Import">
+        </Button>
+        <Button
+            android:id="@+id/btnExit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EXIT">
+        </Button>
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>
