@@ -27,12 +27,20 @@ import java.security.Key;
 import java.util.Objects;
 //============================================================
 //
-// SQLite database with fields: user, email, phone, notes. Notes field is RSA encrypted on write.
+// Ready-made technical project of a Java application for working with the SQLite database and
+// RSA encryption of some record fields. A good template for easy and fast development of your commercial project.
+//
+// SQLite database with fields: user, email, phone, notes. Notes field is RSA encrypted on write. LARGE text support
 // Source:
 // https://github.com/vallshmeleff/androidrsa - RSA encryptin repository
 // https://github.com/vallshmeleff/sqlite - SQLite repository
 //
+// GUIDE https://github.com/vallshmeleff/sqliteandrsa/blob/main/GUIDE.pdf
+//
 // RSA NOTE field encrytion
+//
+// 16.11.2022 Add LARGE Text Encryption Methods
+// 24.11.2022 Debugging and GUI refinement
 //
 // Develop in progress ...
 //
@@ -63,18 +71,22 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     public static byte[] publicKeyBytes = null; //RSA
     public static byte[] encodedBytes = null; //RSA
     public static byte[] decodedBytes = null; //RSA
+    public static byte[] fragmentBytes = null; //RSA
+    public static byte[] decodefragmentBytes = null; //RSA
     public File file = new File("key.pub"); // File for keys save
 
     public String note = ""; // onClick - evNote.getText().toString(); // Notes
     public Key[] KeyPMass = new Key[2]; //An array of two keys to return values from a method
     public Key[] KeyMass = new Key[2]; //An array of two keys to return values from a method
-    // Text to Code
+    // LARGE Text to Code
     public static String gtestText = "WiKi: Slovak Republic (Slovenská republika), is a landlocked country in Central Europe. It is bordered by Poland to the north, Ukraine to the east, Hungary to the south, Austria to the southwest, and the Czech Republic to the northwest. Slovakia's mostly mountainous territory spans about 49,000 square kilometres (19,000 sq mi), with a population of over 5.4 million. The capital and largest city is Bratislava, while the second largest city is Košice.";
+    public String[] eFragment = new String[100]; // The array contains a large text to encrypt, divided into chunks
+    public String[] eeFragment = new String[100]; // The array contains a encrypted large text, divided into chunks
 
     long rowID;
-    int ie=0; // First record pointer
+    int ie=0; // Database record pointer
     int it=0; // Update ID
-    int ecounter; // How many records are in the database
+    public int ecounter; // How many records are in the database
 
     DBHelper dbHelper;
 
@@ -151,7 +163,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         buttonAdd = (Button) findViewById(R.id.btnAdd);
         buttonAdd.setOnClickListener((View.OnClickListener) this);
 
-        buttonRead = (Button) findViewById(R.id.btnRead);
+        buttonRead = (Button) findViewById(R.id.btnRead); // Set Record 0
         buttonRead.setOnClickListener((View.OnClickListener) this);
 
         buttonClear = (Button) findViewById(R.id.btnClear);
@@ -193,7 +205,27 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         }
 
 
-    }
+        //======== Encode and Decode Large Text - USE Two Methods =====
+        //==String CzechText = "WiKi: The Czech Republic, also known as Czechia, is a landlocked country in Central Europe. Historically known as Bohemia, it is bordered by Austria to the south, Germany to the west, Poland to the northeast, and Slovakia to the southeast. The Czech Republic has a hilly landscape that covers an area of 78,871 square kilometers (30,452 sq mi) with a mostly temperate continental and oceanic climate. The capital and largest city is Prague; other major cities and urban areas include Brno, Ostrava, Plzeň and Liberec.";
+        //==String CzechCodeText = LargeTextCode(CzechText);
+        //==Log.d("LARGE Method", "== == DECODED Large Czech 2 == ==" + CzechCodeText);
+        //==String CzechDEText = LargeTextDECode(CzechCodeText);
+        //==Log.d("LARGE Method", "== == DECODED Large Czech 3 == ==" + CzechDEText);
+        //======== Encode and Decode Large Text - USE Two Methods =====
+
+        TotalRecords(); // Display Records Counter
+        // If NO Records Disable Buttons |Save REC|, |Next|, |Prev|
+        if (ecounter == 0) {
+            buttonUpdate.setEnabled(false); // Save Edited Record
+            buttonPrev.setEnabled(false);
+            buttonNext.setEnabled(false);
+            buttonRead.setEnabled(false); // Set Record 0
+            buttonClear.setEnabled(false); // Delete DataBase
+            buttonExport.setEnabled(false);
+            buttonImport.setEnabled(false);
+        }
+
+    } //On Create
 
     @Override
     public void onClick(View v) {
@@ -205,9 +237,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         SQLiteDatabase database = dbHelper.getWritableDatabase(); // Connecting to the Database
         ContentValues contentValues = new ContentValues(); // Create an object for the data
 
+
+
         switch (v.getId()) {
 
-            case R.id.btnAdd:
+            case R.id.btnAdd: // Create REC
+
                 contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
                 contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_PHONE to the table
@@ -219,7 +254,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     //note = Base64.encodeToString(encodedBytes, Base64.DEFAULT);
                     // ============================================================
 
-                NOTEncrypt(); // NOTE encryption method. Return note variable
+                // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
+                note = LargeTextCode(evNote.getText().toString()); // Encryption LARGE Text and Create 1st Record
 
                 // Обычный вариант contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
                 contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new encrypted row KEY_NOTE to the table
@@ -228,27 +264,39 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
                 rowID = database.insert(DBHelper.TABLE_CONTACTS, null, contentValues); // Write to the database and get its ID
                 Log.d("SQLite","== == Row inserted, ID = " + rowID);
+                // Buttons is ON
+                buttonUpdate.setEnabled(true); // Save Edited Record
+                buttonPrev.setEnabled(true);
+                buttonNext.setEnabled(true);
+                buttonRead.setEnabled(true); // Set Record 0
+                buttonClear.setEnabled(true); // Delete DataBase
+                buttonExport.setEnabled(true);
+                buttonImport.setEnabled(true);
+
                 break;
 
-            case R.id.btnUpdate:
-                contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
-                contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
-                contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_MAIL to the table
-                NOTEncrypt(); // NOTE encryption method. Return note variable
-                contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
-                Log.d("SQLite","== == == == == == UPDATE Button ");
-                it = ie+1;
+            case R.id.btnUpdate: // Save REC
+                    //== String lnote = evNote.getText().toString(); // Read from evNote EditText
+                contentValues.put(DBHelper.KEY_NAME, evName.getText().toString()); // Adds a new row KEY_NAME to the table
+                contentValues.put(DBHelper.KEY_MAIL, evEmail.getText().toString()); // Adds a new row KEY_MAIL to the table
+                contentValues.put(DBHelper.KEY_PHONE, evPhone.getText().toString()); // Adds a new row KEY_MAIL to the table
+                // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
+
+                note = LargeTextCode(evNote.getText().toString()); // Read from evNote EditText => For Test LARGE text
+                //== contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
+                //== Log.d("SQLite","== == == == == == UPDATE Button ");
+                it = ie+1; // it - Record ID
                 database.update(DBHelper.TABLE_CONTACTS, contentValues, "_id=" + it, null); // Write to the database and get its ID
                 Log.d("SQLite","== == == == == == UPDATE Button " + rowID + " " + it);
                 break;
 
-            case R.id.btnRead: // Set Recor 0
+            case R.id.btnRead: // Set Record 0
                 // We make a request for all data from the TABLE_CONTACTS table, we get the cursor
                 Cursor cursor = database.query(DBHelper.TABLE_CONTACTS, null, null, null, null, null, null);
-                ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
-                Log.d("== == SQLite","Count rows = " + String.valueOf(ecounter));
-                TextView evCounter = (TextView)findViewById(R.id.Rowcount);
-                evCounter.setText("Total records: " + String.valueOf(ecounter) + " Row ID:  " + Objects.toString(rowID, null));
+                    ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                    Log.d("== == SQLite","Count rows = " + String.valueOf(ecounter));
+                    TextView evCounter = (TextView)findViewById(R.id.Rowcount);
+                    evCounter.setText("Total records: " + String.valueOf(ecounter) + " Row ID:  " + Objects.toString(rowID, null));
 
                 int idIndex = cursor.getColumnIndex(DBHelper.KEY_ID);
                 int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
@@ -267,7 +315,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evEmail.setText(cursor.getString(emailIndex));
                 evPhone.setText(cursor.getString(phoneIndex));
                 str2 = cursor.getString(noteIndex); // Read NOTES field
-                NOTEDecrypt(); // NOTE Decryption method. Return note variable
+                // => // NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
+                note = LargeTextDECode(str2); // Decode LARGE Text
                 evNote.setText(note);
 
                 //////// evNote.setText(cursor.getString(noteIndex));
@@ -281,45 +330,64 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
             case R.id.btnNext: // Next record
                 Cursor cursorN = database.query(DBHelper.TABLE_CONTACTS, null, null, null, null, null, null);
-                ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                //==ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                    ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                    Log.d("== == SQLite","Count rows = " + String.valueOf(ecounter));
+                    TextView elCounter = (TextView)findViewById(R.id.Rowcount);
+                    elCounter.setText("Total records: " + String.valueOf(ecounter) + " Row ID:  " + String.valueOf(ie));
+
                 idIndex = cursorN.getColumnIndex(DBHelper.KEY_ID);
                 nameIndex = cursorN.getColumnIndex(DBHelper.KEY_NAME);
                 emailIndex = cursorN.getColumnIndex(DBHelper.KEY_MAIL);
                 phoneIndex = cursorN.getColumnIndex(DBHelper.KEY_PHONE);
                 noteIndex = cursorN.getColumnIndex(DBHelper.KEY_NOTE);
 
+                if (ecounter > 0) { // If the number of records is NOT ZERO
+
                 ie++;
                 if (ie > ecounter-1) {
                     ie = 0;
-                }
-                cursorN.moveToPosition(ie); // Go to post
+                    }
+                    cursorN.moveToPosition(ie); // Go to post if Reads Counter > 0
+                    Log.d("SQLite","====== Record =======" + " ie: " + String.valueOf(ie));
+                    ////cursorN.moveToPosition(ie); // Перейти к записи
+                    Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorN.getInt(idIndex) +
+                            ", Name = " + cursorN.getString(nameIndex) +
+                            ", E-mail = " + cursorN.getString(emailIndex) +
+                            ", Phone = " + cursorN.getString(phoneIndex) +
+                            ", Note = " + cursorN.getString(noteIndex));
+                    evName.setText(cursorN.getString(nameIndex));
+                    evEmail.setText(cursorN.getString(emailIndex));
+                    evPhone.setText(cursorN.getString(phoneIndex));
+                    str2 = cursorN.getString(noteIndex); // Read NOTES field
+                    // => // NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
+                    note = LargeTextDECode(str2); // Decode LARGE Text
+                    evNote.setText(note);
+                    // evNote.setText(cursorN.getString(noteIndex));
 
-                Log.d("SQLite","====== Record =======" + " ie: " + String.valueOf(ie));
-                cursorN.moveToPosition(ie); // Перейти к записи
-                Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorN.getInt(idIndex) +
-                        ", Name = " + cursorN.getString(nameIndex) +
-                        ", E-mail = " + cursorN.getString(emailIndex) +
-                        ", Phone = " + cursorN.getString(phoneIndex) +
-                        ", Note = " + cursorN.getString(noteIndex));
-                evName.setText(cursorN.getString(nameIndex));
-                evEmail.setText(cursorN.getString(emailIndex));
-                evPhone.setText(cursorN.getString(phoneIndex));
-                NOTEDecrypt(); // NOTE Decryption method. Return note variable
-                evNote.setText(note);
-                // evNote.setText(cursorN.getString(noteIndex));
+                } else {
+                    ie = 0; // If NO Records in DataBase
+                }
+
 
                 cursorN.close();
                 break;
 
             case R.id.btnPrev: // Previous record
                 Cursor cursorP = database.query(DBHelper.TABLE_CONTACTS, null, null, null, null, null, null);
-                ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                //==ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount();
+                    ecounter = database.rawQuery("SELECT _ID FROM NTable", null).getCount(); // Total Records
+                    Log.d("== == SQLite == btnPrev ==","Count rows = " + String.valueOf(ecounter));
+                    TextView enCounter = (TextView)findViewById(R.id.Rowcount);
+                    enCounter.setText("Total records: " + String.valueOf(ecounter) + " Row ID:  " + String.valueOf(ie));
+
                 idIndex = cursorP.getColumnIndex(DBHelper.KEY_ID);
                 nameIndex = cursorP.getColumnIndex(DBHelper.KEY_NAME);
                 emailIndex = cursorP.getColumnIndex(DBHelper.KEY_MAIL);
                 phoneIndex = cursorP.getColumnIndex(DBHelper.KEY_PHONE);
                 noteIndex = cursorP.getColumnIndex(DBHelper.KEY_NOTE);
 
+                if (ecounter > 0) { // If the number of records is NOT ZERO
                 ie--;
                 if (ie <0 ) {
                     ie = ecounter-1;
@@ -327,7 +395,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 cursorP.moveToPosition(ie); // Go to post
 
                 Log.d("SQLite","====== Record 2 =======" + " ie: " + String.valueOf(ie));
-                cursorP.moveToPosition(ie); // Перейти к записи
+                ////cursorP.moveToPosition(ie); // Перейти к записи
                 Log.d("mLog", "== == SQLite == == " + " ie: " + String.valueOf(ie) + " ID: " + cursorP.getInt(idIndex) +
                         ", Name = " + cursorP.getString(nameIndex) +
                         ", E-mail = " + cursorP.getString(emailIndex) +
@@ -336,9 +404,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evName.setText(cursorP.getString(nameIndex));
                 evEmail.setText(cursorP.getString(emailIndex));
                 evPhone.setText(cursorP.getString(phoneIndex));
-                NOTEDecrypt(); // NOTE Decryption method. Return note variable
+                str2 = cursorP.getString(noteIndex); // Read NOTES field
+                // => //  NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
+                note = LargeTextDECode(str2); // Decode LARGE Text
                 evNote.setText(note);
                 //evNote.setText(cursorP.getString(noteIndex));
+                }
 
                 cursorP.close();
                 break;
@@ -410,6 +481,80 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         return note; //Return Text (Decode NOTES)
     } // Valery Shmelev https://www.linkedin.com/in/valery-shmelev-479206227/  Creative programming
     //==========================================================
+
+    //==========================================================
+    //
+    // LARGE TEXT
+    // RSA Encryption Large Text
+    // gtestText - Source Text
+    // EncodeLargeText - return LARGE coded string
+    //
+    //==========================================================
+    public String LargeTextCode(String gtestText) {
+        RSACode rsagente = new RSACode(); // Class instance RSACode
+        String EncodeLargeText = ""; // RSA Crypted Large Text
+        if (gtestText.length() >= 50) { // If LARGE text lenght > 50 bytes - LONG Text
+            String eFragment[] = new String[rsagente.eFragment(gtestText).length]; // Array eFragment[] RESIZE
+            String eeFragment[] = new String[eFragment.length]; // eFragment.lenght = eeFragment.lenght
+            eFragment = rsagente.eFragment(gtestText); // Fragmentation - eFragment[] Fragment Array
+            int el = eFragment.length; // Fragment number
+            int n = 0;
+            while  (n < el) {
+                if (n == 0) {
+                    EncodeLargeText = Base64.encodeToString(rsagente.RSATextEncode(publicKey, privateKey, eFragment[n]), Base64.DEFAULT);
+                }
+                if (n > 0) {
+                    EncodeLargeText = EncodeLargeText + "<oflameron>" + Base64.encodeToString(rsagente.RSATextEncode(publicKey, privateKey, eFragment[n]), Base64.DEFAULT);
+                }
+                n++;
+            }
+        }
+        return EncodeLargeText; //Return FULL Ecoded Large Text
+    } // LargeTextCode
+
+
+    //==========================================================
+    //
+    // LARGE TEXT
+    // RSA DEcryption Large Text
+    // gtestText - Source Text
+    // RestoreText - return LARGE DEcoded string
+    //
+    //==========================================================
+    public String LargeTextDECode(String gtestText) {
+        RSACode rsagente = new RSACode(); // Class instance RSACode
+        eeFragment = rsagente.eDEFragment(gtestText);
+        int g = eeFragment.length;
+        int h = 0;
+        String RestoreText = ""; // Restored Large Text
+        for(h = 0; h < g; h++) {
+            //Log.d("==LARGE Text==", "== ==| Split LARGE Text |== == " + eeFragment[h]);
+            fragmentBytes = Base64.decode(eeFragment[h], Base64.DEFAULT);;
+            decodefragmentBytes  = rsagente.RSATextDecode(publicKey, privateKey,fragmentBytes); //Text decoding (publicKey = KeyMass[0], privateKey = KeyMass[1])
+            RestoreText = RestoreText + new String(decodefragmentBytes);
+        }
+        Log.d("==LARGE Text==", "== ==| RESTORED Source Large Text |== == " +  RestoreText); // Full RESTORED Original Text
+        return RestoreText; //Return FULL Ecoded Large Text
+    } // LargeTextDECode
+
+    //==========================================================
+    // Records Counter
+    //==========================================================
+    public void TotalRecords() {
+        // ============================================================
+        // Records Counter
+        // ============================================================
+        SQLiteDatabase crdatabase = dbHelper.getWritableDatabase(); // Connecting to the Database
+        crdatabase = dbHelper.getWritableDatabase(); // Connecting to the Database
+        Cursor cursor = crdatabase.query(DBHelper.TABLE_CONTACTS, null, null, null, null, null, null);
+        ecounter = crdatabase.rawQuery("SELECT _ID FROM NTable", null).getCount();
+        Log.d("== == SQLite ON Create == ==","Count rows = " + String.valueOf(ecounter));
+        TextView evCounter = (TextView)findViewById(R.id.Rowcount);
+        evCounter.setText("Total records: " + String.valueOf(ecounter) + " Row ID:  " + Objects.toString(rowID, null));
+        dbHelper.close();
+    }
+    //==========================================================
+
 
 
 
