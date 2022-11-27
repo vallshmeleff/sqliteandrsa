@@ -14,3 +14,4 @@ Very strong RSA encryption is used. You can choose more reliable encryption key 
 18.11.2022 Add GUIDE.pdf - pdf guide
 23.11.2022 - Debugging
 24.11.2022 - GUI Updated
+27.11.2022 - Zero text to ecrypt error detected
