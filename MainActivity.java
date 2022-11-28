@@ -242,6 +242,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         switch (v.getId()) {
 
             case R.id.btnAdd: // Create REC
+                evName.setText("");
+                evEmail.setText("");
+                evPhone.setText("");
+                evNote.setText("");
 
                 contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
@@ -255,7 +259,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     // ============================================================
 
                 // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
-                note = LargeTextCode(evNote.getText().toString()); // Encryption LARGE Text and Create 1st Record
+                //== note = LargeTextCode(evNote.getText().toString()); // Encryption LARGE Text and Create 1st Record
 
                 // Обычный вариант contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
                 contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new encrypted row KEY_NOTE to the table
@@ -282,12 +286,13 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 contentValues.put(DBHelper.KEY_PHONE, evPhone.getText().toString()); // Adds a new row KEY_MAIL to the table
                 // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
 
-                note = LargeTextCode(evNote.getText().toString()); // Read from evNote EditText => For Test LARGE text
-                //== contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
-                //== Log.d("SQLite","== == == == == == UPDATE Button ");
+                Log.d("= Save REC =","== == == == == ==| UPDATE Button |== == == == " +  evNote.getText().toString());
+                note = LargeTextCode(evNote.getText().toString()); // Read from evNote EditText and EnCrypt => For Test LARGE text
+                Log.d("= Save REC =","== == == == == ==| UPDATE Button |== == == == " +  note);
+                contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
                 it = ie+1; // it - Record ID
                 database.update(DBHelper.TABLE_CONTACTS, contentValues, "_id=" + it, null); // Write to the database and get its ID
-                Log.d("SQLite","== == == == == == UPDATE Button " + rowID + " " + it);
+                Log.d("SQLite","== == == == == == SAVE REC Button " + rowID + " " + it);
                 break;
 
             case R.id.btnRead: // Set Record 0
@@ -508,6 +513,8 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 }
                 n++;
             }
+        } else { // If text lenght < 50 bytes - SHORT Text
+            EncodeLargeText = Base64.encodeToString(rsagente.RSATextEncode(publicKey, privateKey, gtestText), Base64.DEFAULT);
         }
         return EncodeLargeText; //Return FULL Ecoded Large Text
     } // LargeTextCode

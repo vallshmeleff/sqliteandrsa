@@ -78,7 +78,7 @@ public class RSACode  extends Application {
     public void onCreate(){
         super.onCreate();
         context = MainActivity.Maincontext;
-        Log.e("CONTEXT", "== == == == CONTEXT == == == ==" + context.toString());
+        //==> Log.e("CONTEXT", "== == == == CONTEXT == == == ==" + context.toString());
 
     }
 
@@ -127,7 +127,7 @@ public class RSACode  extends Application {
             Key publicKey = keyFactory.generatePublic(publicKeySpec);
             KeyMass[0] = publicKey;
             KeyMass[1] = privateKey;
-            Log.d(LOG_TAG, "== == RSA Publik and Privatekey Keys Full RESTORED == == " + KeyMass[0] + " " + KeyMass[1]);
+            //==> Log.d(LOG_TAG, "== == RSA Publik and Privatekey Keys Full RESTORED == == " + KeyMass[0] + " " + KeyMass[1]);
             ReturnCode = "RSAKeyReGenerate.RSA Key pair Full RESTORED";
         } catch (Exception e) {
             Log.e("Crypto", "== == RSA key pair error == ==");
@@ -168,13 +168,13 @@ public class RSACode  extends Application {
         // Decode the encoded data with RSA public key
         try {
             Cipher c = Cipher.getInstance("RSA");
-            Log.d("== == SQLite","==================1================");
+            //==> Log.d("== == SQLite","==================1================");
 
             c.init(Cipher.DECRYPT_MODE, privateKey);
             //////////////c.init(Cipher.DECRYPT_MODE, publicKey);
-            Log.d("== == SQLite","==================2================");
+            //==> Log.d("== == SQLite","==================2================");
             decodedBytes = c.doFinal(encodedBytes);
-            Log.d("== == SQLite","==================3================");
+            //==> Log.d("== == SQLite","==================3================");
         } catch (Exception e) {
             Log.e("Crypto", "RSATextDecode.PUBLIC Key " + publicKey.toString());
             Log.e("Crypto", "RSATextDecode.RSACode RSA decryption error");
@@ -432,7 +432,7 @@ public class RSACode  extends Application {
                         //////////masString[e] = "<oflameron>" + Text100; // Write to block array
                         masString[e] = Text100; // Write to block array
                     }
-                    Log.d("== Block==", "== == Large Block == == ["+ e +"] " + masString [e]);
+                    //==> Log.d("== Block==", "== == Large Block == == ["+ e +"] " + masString [e]);
                     e = e + 1; // Next Block Array Number
                     y = y + 50;
                 }
@@ -440,7 +440,7 @@ public class RSACode  extends Application {
                     Text100 =eText.substring(y, eL);
                     ////////////masString [e] = "<oflameron>" + Text100; // Write to block array
                     masString [e] = Text100; // Write to block array
-                    Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
+                    //==> Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
                 }
             } else {
                 //i = 0;
@@ -448,7 +448,7 @@ public class RSACode  extends Application {
                     Text100 =eText.substring(y, eL);
                     ///////////masString [e] = "<oflameron>" + Text100; // Write to block array
                     masString [e] = Text100; // Write to block array
-                    Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
+                    //==> Log.d("== Block==", "== == eText Block == == ["+ e +"] " + masString [e]);
                 }
             }
 
@@ -481,6 +481,7 @@ public class RSACode  extends Application {
         // Defragmenting an eText string
         // ============================================================
         String[] splitted = toDecode.split("<oflameron>"); // Split encrypted string by delimiter and write to array
+        Log.d("= Save REC RSACode =","== == == == == ==| UPDATE Button |== == == == " +  toDecode);
         return splitted; //Return Text array
     }
 
