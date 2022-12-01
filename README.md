@@ -18,3 +18,4 @@ Very strong RSA encryption is used. You can choose more reliable encryption key 
 (28.11.2022) - Fixed bug with text processing before encryption
 (28.11.2022) - Let's move database operations to a separate thread. We will do the same with encryption/decryption. For this, I made a separate application project. The project will not be added to the repository.
 (30.11.2022) - Work with streams is done in a separate project. If someone needs it, you can add. For now, let's add a few more fields to the database records. To increase the universal properties of the application. And then we'll add image display for records in the SQLite database.
+(01.12.2022) - 4 more fields have been added to the database (now a total of 8 fields). The next part of the project is adding a function for working with pictures in JPG format
