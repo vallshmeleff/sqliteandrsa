@@ -41,6 +41,8 @@ import java.util.Objects;
 //
 // 16.11.2022 Add LARGE Text Encryption Methods
 // 24.11.2022 Debugging and GUI refinement
+// 01.12.2022 Encrypts large texts, exports/imports database and keys. There are only 4 fields in the database record
+// Let's add the number of record fields to 8 and, then - add the upload of JPG files
 //
 // Develop in progress ...
 //
@@ -59,6 +61,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     EditText evEmail;
     EditText evPhone;
     EditText evNote;
+    EditText evPhoto;
+    EditText evCity;
+    EditText evStreet;
+    EditText evOffice;
     public static Context Maincontext;
 
     public static Key publicKey = null; //RSA
@@ -187,10 +193,14 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         buttonExit = (Button) findViewById(R.id.btnExit);
         buttonExit.setOnClickListener((View.OnClickListener) this);
 
-        evName = (EditText) findViewById(R.id.etName);
-        evEmail = (EditText) findViewById(R.id.etEmail);
-        evPhone = (EditText) findViewById(R.id.etPhone);
-        evNote = (EditText) findViewById(R.id.etNote);
+            evName = (EditText) findViewById(R.id.etName);
+            evEmail = (EditText) findViewById(R.id.etEmail);
+            evPhone = (EditText) findViewById(R.id.etPhone);
+                evPhoto = (EditText) findViewById(R.id.etPhoto); // Here is a link to the graphic file
+                evCity = (EditText) findViewById(R.id.etCity);
+                evStreet = (EditText) findViewById(R.id.etStreet);
+                evOffice = (EditText) findViewById(R.id.etOffice);
+            evNote = (EditText) findViewById(R.id.etNote);
 
         dbHelper = new DBHelper(this); // Create an object for creating and managing database versions
 
@@ -233,6 +243,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         String email = evEmail.getText().toString();
         String phone = evPhone.getText().toString();
         note = evNote.getText().toString(); // Notes
+        String photo = evPhoto.getText().toString(); // Image Link
+        String city = evCity.getText().toString();
+        String street = evStreet.getText().toString();
+        String office = evOffice.getText().toString();
 
         SQLiteDatabase database = dbHelper.getWritableDatabase(); // Connecting to the Database
         ContentValues contentValues = new ContentValues(); // Create an object for the data
@@ -245,11 +259,19 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 evName.setText("");
                 evEmail.setText("");
                 evPhone.setText("");
+                evPhoto.setText("");
+                evCity.setText("");
+                evStreet.setText("");
+                evOffice.setText("");
                 evNote.setText("");
 
                 contentValues.put(DBHelper.KEY_NAME, name); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, email); // Adds a new row KEY_MAIL to the table
                 contentValues.put(DBHelper.KEY_PHONE, phone); // Adds a new row KEY_PHONE to the table
+                contentValues.put(DBHelper.KEY_PHOTO, photo); // Adds a new row KEY_PHOTO to the table
+                contentValues.put(DBHelper.KEY_CITY, city); // Adds a new row KEY_CITY to the table
+                contentValues.put(DBHelper.KEY_STREET, street); // Adds a new row KEY_STREET to the table
+                contentValues.put(DBHelper.KEY_OFFICE, office); // Adds a new row KEY_OFFICE to the table
                     // ============================================================
                     // Encode the original text with RSA private key
                     // ============================================================
@@ -259,9 +281,9 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     // ============================================================
 
                 // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
-                //== note = LargeTextCode(evNote.getText().toString()); // Encryption LARGE Text and Create 1st Record
+                note = LargeTextCode(evNote.getText().toString()); // Encryption LARGE Text and Create 1st Record
 
-                // Обычный вариант contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
+                // Обычный вариант contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_NOTE to the table
                 contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new encrypted row KEY_NOTE to the table
 
                 Log.d("SQLite","== == == == == == ADD Button " + note);
@@ -283,14 +305,20 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                     //== String lnote = evNote.getText().toString(); // Read from evNote EditText
                 contentValues.put(DBHelper.KEY_NAME, evName.getText().toString()); // Adds a new row KEY_NAME to the table
                 contentValues.put(DBHelper.KEY_MAIL, evEmail.getText().toString()); // Adds a new row KEY_MAIL to the table
-                contentValues.put(DBHelper.KEY_PHONE, evPhone.getText().toString()); // Adds a new row KEY_MAIL to the table
+                contentValues.put(DBHelper.KEY_PHONE, evPhone.getText().toString()); // Adds a new row KEY_PHONE to the table
+                contentValues.put(DBHelper.KEY_PHOTO, evPhoto.getText().toString()); // Adds a new row KEY_PHOTO to the table
+                contentValues.put(DBHelper.KEY_CITY, evCity.getText().toString()); // Adds a new row KEY_CITY to the table
+                contentValues.put(DBHelper.KEY_STREET, evStreet.getText().toString()); // Adds a new row KEY_STREET to the table
+                contentValues.put(DBHelper.KEY_OFFICE, evOffice.getText().toString()); // Adds a new row KEY_OFFICE to the table
                 // => // NOTEncrypt(); // NOTE encryption method. Return note variable - SMALL TEXT SIZE
 
                 Log.d("= Save REC =","== == == == == ==| UPDATE Button |== == == == " +  evNote.getText().toString());
+                Log.d("SQLite",">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + evNote.getText().toString());
                 note = LargeTextCode(evNote.getText().toString()); // Read from evNote EditText and EnCrypt => For Test LARGE text
+                Log.d("SQLite",">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>==" + note);
                 Log.d("= Save REC =","== == == == == ==| UPDATE Button |== == == == " +  note);
                 contentValues.put(DBHelper.KEY_NOTE, note); // Adds a new row KEY_MAIL to the table
-                it = ie+1; // it - Record ID
+                it = ie; // it - Record ID
                 database.update(DBHelper.TABLE_CONTACTS, contentValues, "_id=" + it, null); // Write to the database and get its ID
                 Log.d("SQLite","== == == == == == SAVE REC Button " + rowID + " " + it);
                 break;
@@ -307,6 +335,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 int nameIndex = cursor.getColumnIndex(DBHelper.KEY_NAME);
                 int emailIndex = cursor.getColumnIndex(DBHelper.KEY_MAIL);
                 int phoneIndex = cursor.getColumnIndex(DBHelper.KEY_PHONE);
+                int photoIndex = cursor.getColumnIndex(DBHelper.KEY_PHOTO);
+                int cityIndex = cursor.getColumnIndex(DBHelper.KEY_CITY);
+                int streetIndex = cursor.getColumnIndex(DBHelper.KEY_STREET);
+                int officeIndex = cursor.getColumnIndex(DBHelper.KEY_OFFICE);
                 int noteIndex = cursor.getColumnIndex(DBHelper.KEY_NOTE);
 
                 ie =1;
@@ -315,10 +347,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                         ", Name = " + cursor.getString(nameIndex) +
                         ", E-mail = " + cursor.getString(emailIndex) +
                         ", Phone = " + cursor.getString(phoneIndex) +
+                        ", Photo = " + cursor.getString(photoIndex) +
+                        ", City = " + cursor.getString(cityIndex) +
+                        ", Street = " + cursor.getString(streetIndex) +
+                        ", Office = " + cursor.getString(officeIndex) +
                         ", Note = " + cursor.getString(noteIndex));
                 evName.setText(cursor.getString(nameIndex));
                 evEmail.setText(cursor.getString(emailIndex));
                 evPhone.setText(cursor.getString(phoneIndex));
+                evPhoto.setText(cursor.getString(photoIndex));
+                evCity.setText(cursor.getString(cityIndex));
+                evStreet.setText(cursor.getString(streetIndex));
+                evOffice.setText(cursor.getString(officeIndex));
                 str2 = cursor.getString(noteIndex); // Read NOTES field
                 // => // NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
                 note = LargeTextDECode(str2); // Decode LARGE Text
@@ -345,6 +385,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 nameIndex = cursorN.getColumnIndex(DBHelper.KEY_NAME);
                 emailIndex = cursorN.getColumnIndex(DBHelper.KEY_MAIL);
                 phoneIndex = cursorN.getColumnIndex(DBHelper.KEY_PHONE);
+                photoIndex = cursorN.getColumnIndex(DBHelper.KEY_PHOTO);
+                cityIndex = cursorN.getColumnIndex(DBHelper.KEY_CITY);
+                streetIndex = cursorN.getColumnIndex(DBHelper.KEY_STREET);
+                officeIndex = cursorN.getColumnIndex(DBHelper.KEY_OFFICE);
                 noteIndex = cursorN.getColumnIndex(DBHelper.KEY_NOTE);
 
                 if (ecounter > 0) { // If the number of records is NOT ZERO
@@ -360,10 +404,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                             ", Name = " + cursorN.getString(nameIndex) +
                             ", E-mail = " + cursorN.getString(emailIndex) +
                             ", Phone = " + cursorN.getString(phoneIndex) +
+                            ", Photo = " + cursorN.getString(photoIndex) +
+                            ", City = " + cursorN.getString(cityIndex) +
+                            ", Street = " + cursorN.getString(streetIndex) +
+                            ", Office = " + cursorN.getString(officeIndex) +
                             ", Note = " + cursorN.getString(noteIndex));
                     evName.setText(cursorN.getString(nameIndex));
                     evEmail.setText(cursorN.getString(emailIndex));
                     evPhone.setText(cursorN.getString(phoneIndex));
+                    evPhoto.setText(cursorN.getString(photoIndex));
+                    evCity.setText(cursorN.getString(cityIndex));
+                    evStreet.setText(cursorN.getString(streetIndex));
+                    evOffice.setText(cursorN.getString(officeIndex));
                     str2 = cursorN.getString(noteIndex); // Read NOTES field
                     // => // NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
                     note = LargeTextDECode(str2); // Decode LARGE Text
@@ -390,6 +442,10 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 nameIndex = cursorP.getColumnIndex(DBHelper.KEY_NAME);
                 emailIndex = cursorP.getColumnIndex(DBHelper.KEY_MAIL);
                 phoneIndex = cursorP.getColumnIndex(DBHelper.KEY_PHONE);
+                photoIndex = cursorP.getColumnIndex(DBHelper.KEY_PHOTO);
+                cityIndex = cursorP.getColumnIndex(DBHelper.KEY_CITY);
+                streetIndex = cursorP.getColumnIndex(DBHelper.KEY_STREET);
+                officeIndex = cursorP.getColumnIndex(DBHelper.KEY_OFFICE);
                 noteIndex = cursorP.getColumnIndex(DBHelper.KEY_NOTE);
 
                 if (ecounter > 0) { // If the number of records is NOT ZERO
@@ -405,10 +461,18 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                         ", Name = " + cursorP.getString(nameIndex) +
                         ", E-mail = " + cursorP.getString(emailIndex) +
                         ", Phone = " + cursorP.getString(phoneIndex) +
+                        ", Photo = " + cursorP.getString(photoIndex) +
+                        ", City = " + cursorP.getString(cityIndex) +
+                        ", Street = " + cursorP.getString(streetIndex) +
+                        ", Office = " + cursorP.getString(officeIndex) +
                         ", Note = " + cursorP.getString(noteIndex));
                 evName.setText(cursorP.getString(nameIndex));
                 evEmail.setText(cursorP.getString(emailIndex));
                 evPhone.setText(cursorP.getString(phoneIndex));
+                    evPhoto.setText(cursorP.getString(photoIndex));
+                    evCity.setText(cursorP.getString(cityIndex));
+                    evStreet.setText(cursorP.getString(streetIndex));
+                    evOffice.setText(cursorP.getString(officeIndex));
                 str2 = cursorP.getString(noteIndex); // Read NOTES field
                 // => //  NOTEDecrypt(); // NOTE Decryption method. Return note variable - SMALL TEXT SIZE
                 note = LargeTextDECode(str2); // Decode LARGE Text

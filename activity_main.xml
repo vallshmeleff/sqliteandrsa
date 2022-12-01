@@ -31,6 +31,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </EditText>
+        <!-- Add 4 more record fields -->
+        <EditText
+            android:id="@+id/etPhoto"
+            android:textSize="18sp"
+            android:hint="Phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+        <EditText
+            android:id="@+id/etCity"
+            android:textSize="18sp"
+            android:hint="Phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+        <EditText
+            android:id="@+id/etStreet"
+            android:textSize="18sp"
+            android:hint="Phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+        <EditText
+            android:id="@+id/etOffice"
+            android:textSize="18sp"
+            android:hint="Phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </EditText>
+
     <!-- Total Lines in EditText = 6 -->
     <EditText
         android:id="@+id/etNote"

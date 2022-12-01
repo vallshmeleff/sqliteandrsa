@@ -15,6 +15,10 @@ public class DBHelper  extends SQLiteOpenHelper { // DBHelper own class inherite
     public static final String KEY_NAME = "name";
     public static final String KEY_MAIL = "mail";
     public static final String KEY_PHONE = "phone";
+    public static final String KEY_PHOTO = "photo";
+    public static final String KEY_CITY = "city";
+    public static final String KEY_STREET = "street";
+    public static final String KEY_OFFICE = "office";
     public static final String KEY_NOTE = "note";
 
     public DBHelper(Context context) {
@@ -24,7 +28,7 @@ public class DBHelper  extends SQLiteOpenHelper { // DBHelper own class inherite
     @Override
     public void onCreate(SQLiteDatabase db) { // Required abstract method. Called when the database is first created
         db.execSQL("create table " + TABLE_CONTACTS + "(" + KEY_ID
-                + " integer primary key," + KEY_NAME + " text," + KEY_MAIL + " text," + KEY_PHONE + " text," + KEY_NOTE + " text" + ")");
+                + " integer primary key," + KEY_NAME + " text," + KEY_MAIL + " text," + KEY_PHONE + " text," + KEY_PHOTO + " text," + KEY_CITY + " text," + KEY_STREET + " text," + KEY_OFFICE + " text," + KEY_NOTE + " text" + ")");
     }
 
     @Override
