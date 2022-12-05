@@ -20,3 +20,4 @@ Very strong RSA encryption is used. You can choose more reliable encryption key 
 (30.11.2022) - Work with streams is done in a separate project. If someone needs it, you can add. For now, let's add a few more fields to the database records. To increase the universal properties of the application. And then we'll add image display for records in the SQLite database.
 (01.12.2022) - 4 more fields have been added to the database (now a total of 8 fields). The next part of the project is adding a function for working with pictures in JPG format
 (04.12.2022) - Fixed bug
+(05.12.2022) - Developing Java code for uploading images to a SQLite database
