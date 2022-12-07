@@ -12,3 +12,4 @@ SQLite database prototype for Android with support for RSA-encrypted records. Th
 (01.12.2022) - 4 more fields have been added to the database (now a total of 8 fields). The next part of the project is adding a function for working with pictures in JPG format
 (04.12.2022) - Fixed bug
 (05.12.2022) - Developing Java code for uploading images to a SQLite database
+(07.12.2022) - Java code for loading images was written and separately debugged.
