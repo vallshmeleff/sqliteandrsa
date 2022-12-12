@@ -14,3 +14,4 @@ SQLite database prototype for Android with support for RSA-encrypted records. Th
 (05.12.2022) - Developing Java code for uploading images to a SQLite database
 (07.12.2022) - Java code for loading images was written and separately debugged.
 (11.12.2022) - JPG load into SQLite debugging
+(12.12.2022) - JPG load method testing
