@@ -156,5 +156,14 @@
             android:text="EXIT">
         </Button>
     </LinearLayout>
+        <!-- Load JPG File -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="194dp"
+                android:layout_height="253dp" />
+        </LinearLayout>
 </LinearLayout>
 </ScrollView>
