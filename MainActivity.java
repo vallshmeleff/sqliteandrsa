@@ -9,17 +9,20 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -42,7 +45,7 @@ import java.util.Objects;
 // 16.11.2022 Add LARGE Text Encryption Methods
 // 24.11.2022 Debugging and GUI refinement
 // 01.12.2022 Encrypts large texts, exports/imports database and keys. There are only 4 fields in the database record
-// Let's add the number of record fields to 8 and, then - add the upload of JPG files
+// 12.12.2022 Upp the number of record fields to 8 and add the upload of JPG files
 //
 // Develop in progress ...
 //
@@ -626,6 +629,24 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     }
     //==========================================================
 
+
+    // ============================================================
+    // Load JPG File to resourceId ImageView
+    // ============================================================
+    public void LoadJPG(String JpgFile, int resourceId) {
+        MainActivity Mjpg = new MainActivity();
+        ImageView mImageView = (ImageView) findViewById(resourceId); // int resourceId = R.id.imageView3
+        String npath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath().toString();
+        String vparth = npath  + "/" + JpgFile;
+        Log.e("== LOG ==", "== == ==  Parth: == == ==" + npath  + "/" + JpgFile);
+
+        File nfile = new File(npath);
+        if(nfile.exists()) { // If JPG file Exist
+            Log.e("== LOG ==", "== == ==  Parth: == == ==" + vparth);
+            mImageView.setImageURI(Uri.fromFile(new File(vparth)));
+        }
+
+    }
 
 
 
