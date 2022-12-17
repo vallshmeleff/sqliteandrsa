@@ -15,3 +15,4 @@ SQLite database prototype for Android with support for RSA-encrypted records. Th
 (07.12.2022) - Java code for loading images was written and separately debugged.
 (11.12.2022) - JPG load into SQLite debugging
 (12.12.2022) - JPG load method testing
+(14.12.2022) - Unwritten methods for the SQLite extension - SQLiteBoost. Let's add it to the class, but we won't "connect" it. Everything is simple there. If the database lacks fields, and there are already a lot of hashes, then these methods will easily fix the problem.
